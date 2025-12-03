@@ -8,29 +8,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install Build Dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y build-essential ccache git libncurses5-dev \
         g++ gawk gettext libssl-dev xsltproc zlib1g-dev python3 python3-pip \
         qemu-utils p7zip-full rsync
 
-    - name: Clone OpenWrt Source
+    - name: Clone OpenWrt source
       run: |
         git clone https://github.com/immortalwrt/immortalwrt openwrt
+
+    - name: Update and install feeds
+      run: |
         cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: Generate Default Config
+    - name: Prepare config
       run: |
         cd openwrt
         touch .config
 
-    - name: Add Custom Config for X86 + Plugins + 10G
+    - name: Add custom config
       run: |
         cd openwrt
         cat >> .config << "EOF"
@@ -38,5 +41,49 @@ CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
 CONFIG_TARGET_x86_64_DEVICE_generic=y
 
-# Passwall
-CONFIG_P_
+CONFIG_PACKAGE_luci-app-passwall=y
+CONFIG_PACKAGE_xray-core=y
+CONFIG_PACKAGE_trojan=y
+CONFIG_PACKAGE_trojan-go=y
+CONFIG_PACKAGE_v2ray-core=y
+
+CONFIG_PACKAGE_luci-app-adguardhome=y
+CONFIG_PACKAGE_AdGuardHome=y
+
+CONFIG_PACKAGE_luci-app-smartdns=y
+CONFIG_PACKAGE_smartdns=y
+
+CONFIG_PACKAGE_luci-app-vlmcsd=y
+CONFIG_PACKAGE_vlmcsd=y
+
+CONFIG_PACKAGE_luci-app-ttyd=y
+
+CONFIG_PACKAGE_luci-app-samba4=y
+
+CONFIG_PACKAGE_luci-app-dockerman=y
+CONFIG_PACKAGE_docker=y
+CONFIG_PACKAGE_dockerd=y
+
+CONFIG_TARGET_ROOTFS_PARTSIZE=10000
+EOF
+
+    - name: Apply config
+      run: |
+        cd openwrt
+        make defconfig
+
+    - name: Download sources
+      run: |
+        cd openwrt
+        make download -j8
+
+    - name: Compile
+      run: |
+        cd openwrt
+        make -j$(nproc) || make -j1 V=s
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenWrt-X86-10G
+        path: openwrt/bin/targets/
