@@ -31,41 +31,35 @@ jobs:
     - name: Prepare config
       run: |
         cd openwrt
-        touch .config
+        : > .config
+        echo "CONFIG_TARGET_x86=y" >> .config
+        echo "CONFIG_TARGET_x86_64=y" >> .config
+        echo "CONFIG_TARGET_x86_64_DEVICE_generic=y" >> .config
 
-    - name: Add custom config
-      run: |
-        cd openwrt
-        cat >> .config << "EOF"
-CONFIG_TARGET_x86=y
-CONFIG_TARGET_x86_64=y
-CONFIG_TARGET_x86_64_DEVICE_generic=y
+        echo "CONFIG_PACKAGE_luci-app-passwall=y" >> .config
+        echo "CONFIG_PACKAGE_xray-core=y" >> .config
+        echo "CONFIG_PACKAGE_trojan=y" >> .config
+        echo "CONFIG_PACKAGE_trojan-go=y" >> .config
+        echo "CONFIG_PACKAGE_v2ray-core=y" >> .config
 
-CONFIG_PACKAGE_luci-app-passwall=y
-CONFIG_PACKAGE_xray-core=y
-CONFIG_PACKAGE_trojan=y
-CONFIG_PACKAGE_trojan-go=y
-CONFIG_PACKAGE_v2ray-core=y
+        echo "CONFIG_PACKAGE_luci-app-adguardhome=y" >> .config
+        echo "CONFIG_PACKAGE_AdGuardHome=y" >> .config
 
-CONFIG_PACKAGE_luci-app-adguardhome=y
-CONFIG_PACKAGE_AdGuardHome=y
+        echo "CONFIG_PACKAGE_luci-app-smartdns=y" >> .config
+        echo "CONFIG_PACKAGE_smartdns=y" >> .config
 
-CONFIG_PACKAGE_luci-app-smartdns=y
-CONFIG_PACKAGE_smartdns=y
+        echo "CONFIG_PACKAGE_luci-app-vlmcsd=y" >> .config
+        echo "CONFIG_PACKAGE_vlmcsd=y" >> .config
 
-CONFIG_PACKAGE_luci-app-vlmcsd=y
-CONFIG_PACKAGE_vlmcsd=y
+        echo "CONFIG_PACKAGE_luci-app-ttyd=y" >> .config
 
-CONFIG_PACKAGE_luci-app-ttyd=y
+        echo "CONFIG_PACKAGE_luci-app-samba4=y" >> .config
 
-CONFIG_PACKAGE_luci-app-samba4=y
+        echo "CONFIG_PACKAGE_luci-app-dockerman=y" >> .config
+        echo "CONFIG_PACKAGE_docker=y" >> .config
+        echo "CONFIG_PACKAGE_dockerd=y" >> .config
 
-CONFIG_PACKAGE_luci-app-dockerman=y
-CONFIG_PACKAGE_docker=y
-CONFIG_PACKAGE_dockerd=y
-
-CONFIG_TARGET_ROOTFS_PARTSIZE=10000
-EOF
+        echo "CONFIG_TARGET_ROOTFS_PARTSIZE=10000" >> .config
 
     - name: Apply config
       run: |
